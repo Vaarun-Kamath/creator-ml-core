@@ -19,6 +19,7 @@
 	"homepage": "https://github.com/Vaarun-Kamath/creator-ml-core#readme",
 	"description": "CreatorML - Backend microservices for YouTube creators",
 	"dependencies": {
+		"axios": "^1.11.0",
 		"dotenv": "^16.4.5",
 		"express": "^4.21.2",
 		"node-fetch": "^2.7.0"

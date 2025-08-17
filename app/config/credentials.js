@@ -15,4 +15,8 @@ const gcpCredentials = {
 		: [],
 };
 
-module.exports = { gcpCredentials };
+const youtubeApiKey = {
+	key: process.env.YOUTUBE_API_KEY,
+};
+
+module.exports = { gcpCredentials, youtubeApiKey };

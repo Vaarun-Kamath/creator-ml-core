@@ -22,12 +22,15 @@ const getKeywordSuggestions = async (req, res) => {
 		// Log the seed keyword for debugging
 		console.log(`🔍 Processing keyword research for seed: "${seed}"`);
 
-		// TODO: Call YouTube services to get suggestions and analyze them
-		// For now, return placeholder response
+		// Get autocomplete suggestions from YouTube
+		const suggestions = await youtubeService.processKeywordResearch(seed);
+
+		// Return the suggestions
 		res.status(200).json({
-			status: "in progress",
+			status: "success",
 			seed: seed,
-			message: "Keyword research functionality will be implemented next",
+			suggestions: suggestions,
+			count: suggestions.length,
 			timestamp: new Date().toISOString(),
 		});
 	} catch (error) {
