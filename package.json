@@ -1,0 +1,29 @@
+{
+	"name": "creator-ml-core",
+	"version": "1.0.0",
+	"main": "index.js",
+	"scripts": {
+		"start": "node index.js",
+		"dev": "nodemon index.js",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Vaarun-Kamath/creator-ml-core.git"
+	},
+	"author": "Varun Kamath",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/Vaarun-Kamath/creator-ml-core/issues"
+	},
+	"homepage": "https://github.com/Vaarun-Kamath/creator-ml-core#readme",
+	"description": "CreatorML - Backend microservices for YouTube creators",
+	"dependencies": {
+		"dotenv": "^16.4.5",
+		"express": "^4.21.2",
+		"node-fetch": "^3.3.2"
+	},
+	"devDependencies": {
+		"nodemon": "^3.1.4"
+	}
+}
