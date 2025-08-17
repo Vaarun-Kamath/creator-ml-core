@@ -1,6 +1,8 @@
 const express = require("express");
 const dotenv = require("dotenv");
-const keywordRoutes = require("./routes/keywordRoutes");
+const keywordRoutes = require("./app/routes/keywordRoutes");
+
+const { gcpCredentials } = require("./app/config/credentials");
 
 dotenv.config();
 
@@ -16,6 +18,7 @@ app.use("/api/keywords", keywordRoutes);
 // Health check endpoint
 app.get("/health", (req, res) => {
 	res.status(200).json({
+		test: gcpCredentials.client_id,
 		status: "OK",
 		message: "CreatorML Keyword Research Service is running",
 		timestamp: new Date().toISOString(),
@@ -39,7 +42,7 @@ app.use("*", (req, res) => {
 	});
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
 	console.log(`🚀 CreatorML Keyword Research Service running on port ${PORT}`);
 	console.log(`📍 Health check: http://localhost:${PORT}/health`);
