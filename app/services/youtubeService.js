@@ -207,8 +207,46 @@ const processKeywordResearch = async (seedKeyword) => {
 	}
 };
 
+/**
+ * Fetch tags from a YouTube video
+ * @param {string} videoId - YouTube video ID
+ * @returns {Promise<Array>} Array of tags or empty array if no tags
+ */
+const fetchVideoTags = async (videoId) => {
+	try {
+		console.log(`🏷️ Fetching tags for video ID: ${videoId}`);
+
+		const url = "https://www.googleapis.com/youtube/v3/videos";
+		const params = {
+			part: "snippet",
+			id: videoId,
+			key: youtubeApiKey.key,
+		};
+
+		const response = await axios.get(url, { params });
+		const data = response.data;
+
+		// Check if video exists
+		if (!data.items || data.items.length === 0) {
+			throw new Error("Video not found");
+		}
+
+		// Safely extract tags
+		const videoData = data.items[0];
+		const tags = videoData.snippet.tags || [];
+
+		console.log(`✅ Found ${tags.length} tags for video ${videoId}`);
+
+		return tags;
+	} catch (error) {
+		console.error("Error fetching video tags:", error);
+		throw error;
+	}
+};
+
 module.exports = {
 	getAutocompleteSuggestions,
 	analyzeKeywordMetrics,
 	processKeywordResearch,
+	fetchVideoTags,
 };

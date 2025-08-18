@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const keywordRoutes = require("./app/routes/keywordRoutes");
 const auditRoutes = require("./app/routes/auditRoutes");
+const competitorRoutes = require("./app/routes/competitorRoutes");
 
 const { gcpCredentials } = require("./app/config/credentials");
 
@@ -16,6 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use("/api/keywords", keywordRoutes);
 app.use("/api/audit", auditRoutes);
+app.use("/api/competitor", competitorRoutes);
 
 // Health check endpoint
 app.get("/health", (req, res) => {
