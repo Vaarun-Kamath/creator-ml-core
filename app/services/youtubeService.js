@@ -322,10 +322,56 @@ const fetchChannelKeywords = async (channelHandle) => {
 	}
 };
 
+/**
+ * Find the rank position of a specific video for a given keyword
+ * @param {string} videoId - The YouTube video ID to find
+ * @param {string} keyword - The keyword to search for
+ * @returns {Promise<number>} The rank position (1-50) or 101 if not found
+ */
+const findVideoRank = async (videoId, keyword) => {
+	try {
+		console.log(
+			`🔍 Finding rank for video ${videoId} with keyword: ${keyword}`
+		);
+
+		const url = "https://www.googleapis.com/youtube/v3/search";
+		const params = {
+			key: youtubeApiKey.key,
+			q: keyword,
+			part: "snippet",
+			type: "video",
+			maxResults: 50, // Search top 50 results
+			order: "relevance",
+		};
+
+		const response = await axios.get(url, { params });
+		const items = response.data.items || [];
+
+		// Loop through results to find our video
+		for (let i = 0; i < items.length; i++) {
+			if (items[i].id.videoId === videoId) {
+				const rank = i + 1; // Position is index + 1
+				console.log(`✅ Video found at rank ${rank} for keyword "${keyword}"`);
+				return rank;
+			}
+		}
+
+		// Video not found in top 50 results
+		console.log(
+			`❌ Video not found in top 50 results for keyword "${keyword}"`
+		);
+		return 101; // Indicates not in top results
+	} catch (error) {
+		console.error("Error finding video rank:", error);
+		throw error;
+	}
+};
+
 module.exports = {
 	getAutocompleteSuggestions,
 	analyzeKeywordMetrics,
 	processKeywordResearch,
 	fetchVideoTags,
 	fetchChannelKeywords,
+	findVideoRank,
 };

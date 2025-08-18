@@ -1,13 +1,19 @@
 const express = require("express");
 const dotenv = require("dotenv");
+const connectDB = require("./app/config/db");
 const keywordRoutes = require("./app/routes/keywordRoutes");
 const auditRoutes = require("./app/routes/auditRoutes");
 const competitorRoutes = require("./app/routes/competitorRoutes");
 const metadataRoutes = require("./app/routes/metadataRoutes");
+const trackerRoutes = require("./app/routes/trackerRoutes");
 
 const { gcpCredentials } = require("./app/config/credentials");
+const { runDailyChecks } = require("./app/services/rankCheckerService");
 
 dotenv.config();
+
+// Connect to MongoDB
+connectDB();
 
 const app = express();
 
@@ -20,6 +26,7 @@ app.use("/api/keywords", keywordRoutes);
 app.use("/api/audit", auditRoutes);
 app.use("/api/competitor", competitorRoutes);
 app.use("/api/metadata", metadataRoutes);
+app.use("/api/tracker", trackerRoutes);
 
 // Health check endpoint
 app.get("/health", (req, res) => {
@@ -48,8 +55,33 @@ app.use("*", (req, res) => {
 	});
 });
 
+// Scheduled Job Simulation - Daily Rank Checks
+// In production, use a proper job scheduler like node-cron or Bull Queue
+const DAILY_CHECK_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+const DEV_CHECK_INTERVAL = 5 * 60 * 1000; // 5 minutes for development/testing
+
+// Use shorter interval in development for testing
+const checkInterval =
+	process.env.NODE_ENV === "production"
+		? DAILY_CHECK_INTERVAL
+		: DEV_CHECK_INTERVAL;
+
+console.log(
+	`⏰ Scheduling rank checks every ${checkInterval / 1000 / 60} minutes`
+);
+
+setInterval(async () => {
+	try {
+		console.log("\n🕐 Scheduled rank check triggered...");
+		await runDailyChecks();
+	} catch (error) {
+		console.error("💥 Scheduled rank check failed:", error);
+	}
+}, checkInterval);
+
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-	console.log(`🚀 CreatorML Keyword Research Service running on port ${PORT}`);
+	console.log(`🚀 CreatorML Service running on port ${PORT}`);
 	console.log(`📍 Health check: http://localhost:${PORT}/health`);
+	console.log(`🎯 Rank Tracker: http://localhost:${PORT}/api/tracker`);
 });
