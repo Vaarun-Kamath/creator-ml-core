@@ -1,5 +1,9 @@
 const youtubeService = require("../services/youtubeService");
-const { parseVideoId, isValidVideoId } = require("../utils/parser");
+const {
+	parseVideoId,
+	isValidVideoId,
+	parseChannelId,
+} = require("../utils/parser");
 
 /**
  * Extract tags from a competitor's YouTube video
@@ -72,6 +76,78 @@ const getVideoTags = async (req, res) => {
 	}
 };
 
+/**
+ * Extract keywords from a competitor's YouTube channel
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const getChannelKeywords = async (req, res) => {
+	try {
+		// Get channel URL from query parameters
+		const { channelUrl } = req.query;
+
+		// Validate channel URL parameter
+		if (!channelUrl) {
+			return res.status(400).json({
+				status: "error",
+				message:
+					"Channel URL is required. Please provide a channelUrl query parameter.",
+			});
+		}
+
+		// Parse channel ID from URL
+		const channelHandle = parseChannelId(channelUrl);
+
+		if (!channelHandle) {
+			return res.status(400).json({
+				status: "error",
+				message:
+					"Invalid YouTube channel URL. Please provide a valid YouTube channel URL.",
+				examples: ["?channelUrl=https://youtube.com/@username"],
+			});
+		}
+
+		console.log(`🔑 Extracting keywords for channel ID: ${channelHandle}`);
+
+		// Fetch channel keywords from YouTube API
+		const keywords = await youtubeService.fetchChannelKeywords(channelHandle);
+
+		// Return successful response
+		res.status(200).json({
+			status: "success",
+			channelHandle: channelHandle,
+			channelUrl: channelUrl,
+			keywords: keywords,
+			keywordCount: keywords.length,
+			timestamp: new Date().toISOString(),
+		});
+	} catch (error) {
+		console.error("Error in getChannelKeywords:", error);
+
+		// Handle specific YouTube API errors
+		if (error.response && error.response.status === 404) {
+			return res.status(404).json({
+				status: "error",
+				message:
+					"Channel not found. The channel may be private, deleted, or the handle is incorrect.",
+			});
+		}
+
+		if (error.response && error.response.status === 403) {
+			return res.status(403).json({
+				status: "error",
+				message: "YouTube API quota exceeded or invalid API key.",
+			});
+		}
+
+		res.status(500).json({
+			status: "error",
+			message: "Internal server error while extracting channel keywords",
+		});
+	}
+};
+
 module.exports = {
 	getVideoTags,
+	getChannelKeywords,
 };

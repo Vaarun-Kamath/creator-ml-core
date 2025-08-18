@@ -244,9 +244,88 @@ const fetchVideoTags = async (videoId) => {
 	}
 };
 
+/**
+ * Fetch keywords from a YouTube channel's branding settings
+ * @param {string} channelId - YouTube channel ID
+ * @returns {Promise<Array>} Array of keywords or empty array if no keywords
+ */
+const fetchChannelKeywords = async (channelHandle) => {
+	try {
+		console.log(`🔑 Fetching keywords for channel ID: ${channelHandle}`);
+
+		const url = "https://www.googleapis.com/youtube/v3/channels";
+		const params = {
+			part: "brandingSettings",
+			forHandle: channelHandle,
+			key: youtubeApiKey.key,
+		};
+
+		const response = await axios.get(url, { params });
+		const data = response.data;
+
+		// Check if channel exists
+		if (!data.items || data.items.length === 0) {
+			throw new Error("Channel not found");
+		}
+
+		// Safely extract keywords
+		const channelData = data.items[0];
+		const keywordsString =
+			channelData.brandingSettings?.channel?.keywords || "";
+
+		// If no keywords string exists, return empty array
+		if (!keywordsString || keywordsString.trim() === "") {
+			console.log(`✅ No keywords found for channel ${channelHandle}`);
+			return [];
+		}
+
+		// Parse keywords string into array
+		// YouTube stores keywords as a space-separated string, sometimes with quotes
+		// Example: "keyword1 keyword2 \"phrase with spaces\" keyword3"
+		const keywords = [];
+		let currentKeyword = "";
+		let insideQuotes = false;
+
+		for (let i = 0; i < keywordsString.length; i++) {
+			const char = keywordsString[i];
+
+			if (char === '"') {
+				insideQuotes = !insideQuotes;
+			} else if (char === " " && !insideQuotes) {
+				if (currentKeyword.trim()) {
+					keywords.push(currentKeyword.trim());
+					currentKeyword = "";
+				}
+			} else {
+				currentKeyword += char;
+			}
+		}
+
+		// Add the last keyword if it exists
+		if (currentKeyword.trim()) {
+			keywords.push(currentKeyword.trim());
+		}
+
+		// Remove any empty strings and duplicates
+		const cleanedKeywords = [
+			...new Set(keywords.filter((keyword) => keyword.length > 0)),
+		];
+
+		console.log(
+			`✅ Found ${cleanedKeywords.length} keywords for channel ${channelHandle}`
+		);
+
+		return cleanedKeywords;
+	} catch (error) {
+		console.error("Error fetching channel keywords:", error);
+		throw error;
+	}
+};
+
 module.exports = {
 	getAutocompleteSuggestions,
 	analyzeKeywordMetrics,
 	processKeywordResearch,
 	fetchVideoTags,
+	fetchChannelKeywords,
 };

@@ -19,4 +19,8 @@ const youtubeApiKey = {
 	key: process.env.YOUTUBE_API_KEY,
 };
 
-module.exports = { gcpCredentials, youtubeApiKey };
+const geminiApiKey = {
+	key: process.env.GEMINI_API_KEY,
+};
+
+module.exports = { gcpCredentials, youtubeApiKey, geminiApiKey };

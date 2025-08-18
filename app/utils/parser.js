@@ -87,15 +87,6 @@ const parseChannelId = (url) => {
 
 	// Pattern for channel URLs
 	const patterns = [
-		// youtube.com/channel/CHANNEL_ID
-		/(?:youtube\.com\/channel\/)([a-zA-Z0-9_-]+)/,
-
-		// youtube.com/c/CHANNEL_NAME
-		/(?:youtube\.com\/c\/)([a-zA-Z0-9_-]+)/,
-
-		// youtube.com/user/USERNAME
-		/(?:youtube\.com\/user\/)([a-zA-Z0-9_-]+)/,
-
 		// youtube.com/@HANDLE
 		/(?:youtube\.com\/@)([a-zA-Z0-9_-]+)/,
 	];
