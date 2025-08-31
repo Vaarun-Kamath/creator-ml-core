@@ -1,6 +1,8 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const connectDB = require("./app/config/db");
+const cors = require('cors');
+
 const keywordRoutes = require("./app/routes/keywordRoutes");
 const auditRoutes = require("./app/routes/auditRoutes");
 const competitorRoutes = require("./app/routes/competitorRoutes");
@@ -17,10 +19,23 @@ dotenv.config();
 connectDB();
 
 const app = express();
+const allowedOrigins = ['http://localhost:3000'];
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors({
+	origin: function (origin, callback) {
+		// Allow requests with no origin (like mobile apps or curl requests)
+		if (!origin) return callback(null, true);
+		if (allowedOrigins.indexOf(origin) === -1) {
+			const msg = '[SERVER] The CORS policy for this site does not allow access from the specified Origin.';
+			return callback(new Error(msg), false);
+		}
+		return callback(null, true);
+	},
+	credentials: true // If your frontend sends cookies or authentication headers
+}));// Enables CORS for all routes and origins
 
 // Routes
 app.use("/api/keywords", keywordRoutes);
@@ -85,5 +100,4 @@ const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
 	console.log(`🚀 CreatorML Service running on port ${PORT}`);
 	console.log(`📍 Health check: http://localhost:${PORT}/health`);
-	console.log(`🎯 Rank Tracker: http://localhost:${PORT}/api/tracker`);
 });
