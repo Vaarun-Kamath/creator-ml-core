@@ -3,6 +3,7 @@ const {
     createProject,
     getProjects,
     getProjectById,
+    addKeywordToProject,
 } = require("../controllers/projectController");
 
 const router = express.Router();
@@ -15,5 +16,8 @@ router.get("/", getProjects);
 
 // GET /api/projects/:projectId - Get a single project by ID
 router.get("/:projectId", getProjectById);
+
+// POST /api/projects/:projectId/keywords - Add a keyword to a project
+router.post("/:projectId/keywords", addKeywordToProject);
 
 module.exports = router;
